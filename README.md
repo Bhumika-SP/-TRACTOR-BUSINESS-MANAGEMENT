@@ -201,7 +201,7 @@ The tests download a MongoDB binary the first time (about 100 MB). They cover ev
 
 ---
 
-## 7. Deploying the backend (MongoDB Atlas + Render)
+## 7. Deploying (MongoDB Atlas + Vercel or Render)
 
 ### MongoDB Atlas
 
@@ -222,6 +222,22 @@ The tests download a MongoDB binary the first time (about 100 MB). They cover ev
 Without the blueprint, create a Web Service with: root directory `backend`, build `npm ci && npm run build`, start `npm start`, health check `/api/health`, and the variables from `backend/.env.example`.
 
 > Render's free plan sleeps when idle, so the first request after a pause can take about a minute. The blueprint uses the low-cost *starter* plan so the owner never waits.
+
+### Vercel (current live setup)
+
+The app is deployed as two Vercel projects, both built from this repository:
+
+| Project | Root directory | Live URL |
+|---|---|---|
+| `tractor-tracker-api` | `backend` | <https://tractor-tracker-api.vercel.app/api/health> |
+| `tractor-tracker` (web app) | `mobile` | <https://tractor-tracker-orpin.vercel.app> |
+
+- `backend/vercel.json` builds the TypeScript and sends every request to one serverless function, `backend/api/index.js`, which reuses the database connection between requests.
+- `mobile/vercel.json` runs `expo export --platform web` and serves the result as a single-page app.
+- **API environment variables** (Vercel → Settings → Environment Variables): `MONGODB_URI`, `JWT_SECRET`, `NODE_ENV=production`, `JWT_EXPIRES_IN`, `BUSINESS_TIMEZONE`, and `CORS_ORIGINS` (the web app's URLs, comma-separated).
+- **Web app environment variable:** `EXPO_PUBLIC_API_URL=https://tractor-tracker-api.vercel.app/api`. It is baked in at build time, so redeploy after changing it.
+- Atlas **Network Access** must allow `0.0.0.0/0`, because Vercel has no fixed outbound IPs. Use a strong database password.
+- Pushing to `main` redeploys both projects. To create an admin against the live database, run `create-admin` locally with the production `MONGODB_URI` and `JWT_SECRET` set in your shell.
 
 ---
 

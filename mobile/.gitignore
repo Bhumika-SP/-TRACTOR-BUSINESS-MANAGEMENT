@@ -12,3 +12,5 @@ ios/
 .env
 .env.local
 expo-env.d.ts
+
+.vercel
