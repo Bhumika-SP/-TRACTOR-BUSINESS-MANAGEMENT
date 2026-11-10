@@ -1,0 +1,24 @@
+# Render Blueprint: New > Blueprint > pick this repository.
+services:
+  - type: web
+    name: tractor-tracker-api
+    runtime: node
+    rootDir: backend
+    plan: starter
+    region: singapore
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # paste your MongoDB Atlas connection string in the Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: BUSINESS_TIMEZONE
+        value: Asia/Kolkata
+      - key: CORS_ORIGINS
+        value: ""

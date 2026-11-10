@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.local
+dist/
+.expo/
+coverage/
+*.log
+
+# Local dev database files (npm run dev:db)
+.devdb/
