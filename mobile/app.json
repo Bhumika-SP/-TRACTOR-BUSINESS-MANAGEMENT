@@ -31,7 +31,7 @@
     ],
     "scheme": "tractortracker",
     "extra": {
-      "apiUrl": "http://192.168.1.10:4000/api"
+      "apiUrl": "https://tractor-tracker-api.vercel.app/api"
     },
     "experiments": {
       "typedRoutes": false

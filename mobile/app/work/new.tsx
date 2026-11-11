@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { z } from 'zod';
 import { FarmerInput } from '@/components/FarmerInput';
@@ -84,7 +84,8 @@ export default function WorkFormScreen() {
     }
   }, [isEdit, existing.data, form]);
 
-  const [fromTime, toTime, rateText] = form.watch(['fromTime', 'toTime', 'rate']);
+  const customerId = useWatch({ control: form.control, name: 'customerId' });
+  const [fromTime, toTime, rateText] = useWatch({ control: form.control, name: ['fromTime', 'toTime', 'rate'] });
   const minutes = fromTime && toTime ? minutesBetween(fromTime, toTime) : 0;
   const rate = parseAmount(rateText ?? '');
   const amount = minutes > 0 && !Number.isNaN(rate) ? previewAmount(minutes, rate) : 0;
@@ -149,7 +150,7 @@ export default function WorkFormScreen() {
           render={({ field, fieldState }) => (
             <FarmerInput
               name={field.value}
-              customerId={form.watch('customerId')}
+              customerId={customerId}
               error={err(fieldState.error?.message)}
               onChange={(v) => {
                 field.onChange(v.name);

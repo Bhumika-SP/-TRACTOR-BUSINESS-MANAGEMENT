@@ -13,14 +13,25 @@ export function usePagedList<T>(key: string, fetchPage: (page: number, limit: nu
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const fetchRef = useRef(fetchPage);
-  fetchRef.current = fetchPage;
   const keyRef = useRef(key);
-  keyRef.current = key;
+  // Keep refs pointing at the latest values (updated after render, before the reload effect below runs).
+  useEffect(() => {
+    fetchRef.current = fetchPage;
+    keyRef.current = key;
+  });
+
+  // When the key (filters) changes, clear the old list straight away, during render.
+  const [shownKey, setShownKey] = useState(key);
+  if (shownKey !== key) {
+    setShownKey(key);
+    setLoading(true);
+    setItems([]);
+    setMeta(null);
+  }
 
   const reload = useCallback(
-    async (mode: 'initial' | 'refresh' | 'silent') => {
+    async (_mode: 'initial' | 'refresh' | 'silent') => {
       const requestKey = key;
-      if (mode === 'refresh') setRefreshing(true);
       try {
         const res = await fetchRef.current(1, PAGE_SIZE);
         if (keyRef.current !== requestKey) return;
@@ -40,9 +51,6 @@ export function usePagedList<T>(key: string, fetchPage: (page: number, limit: nu
   );
 
   useEffect(() => {
-    setLoading(true);
-    setItems([]);
-    setMeta(null);
     void reload('initial');
   }, [reload]);
 
@@ -75,5 +83,8 @@ export function usePagedList<T>(key: string, fetchPage: (page: number, limit: nu
     }
   }, [meta, hasMore, loadingMore]);
 
-  return { items, meta, loading, loadingMore, refreshing, error, hasMore, loadMore, refresh: () => reload('refresh') };
+  return { items, meta, loading, loadingMore, refreshing, error, hasMore, loadMore, refresh: () => {
+      setRefreshing(true);
+      return reload('refresh');
+    } };
 }

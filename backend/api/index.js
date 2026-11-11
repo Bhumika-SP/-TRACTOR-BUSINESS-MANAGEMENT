@@ -15,6 +15,8 @@ let ready;
 module.exports = async function handler(req, res) {
   try {
     app ??= createApp();
+    // CORS preflight needs no database: let the app's cors middleware answer it.
+    if (req.method === 'OPTIONS') return app(req, res);
     if (mongoose.connection.readyState !== 1) {
       ready ??= connectDatabase(env().MONGODB_URI).catch((err) => {
         ready = undefined; // try again on the next request
@@ -26,6 +28,13 @@ module.exports = async function handler(req, res) {
     console.error('Startup failed:', err instanceof Error ? err.message : err);
     res.statusCode = 503;
     res.setHeader('content-type', 'application/json');
+    // Without CORS headers the browser hides this reply and the app wrongly says "No internet".
+    const origin = req.headers.origin;
+    const allowed = (process.env.CORS_ORIGINS || '').split(',').map((o) => o.trim());
+    if (origin && allowed.includes(origin)) {
+      res.setHeader('access-control-allow-origin', origin);
+      res.setHeader('vary', 'Origin');
+    }
     res.end(JSON.stringify({ success: false, error: { code: 'SERVICE_UNAVAILABLE', message: 'Server is starting or the database is unreachable. Please try again.' } }));
     return;
   }

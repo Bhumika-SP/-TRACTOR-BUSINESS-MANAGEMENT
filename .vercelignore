@@ -1,0 +1,10 @@
+# Local-only files that must never be uploaded to Vercel
+**/node_modules
+**/.devdb
+**/dist
+**/.expo
+**/.env
+**/.env.*
+!**/.env.example
+backend/public
+coverage

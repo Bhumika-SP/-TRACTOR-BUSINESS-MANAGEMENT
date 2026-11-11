@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, Pressable, Text, View } from 'react-native';
 import { z } from 'zod';
 import { DateField } from '@/components/pickers';
@@ -40,7 +40,7 @@ export default function PayDriverScreen() {
     defaultValues: { cycleStartDate: params.cycleStart ?? '', amount: '', paymentDate: todayString(), paymentMethod: 'cash', note: '' },
   });
   const draft = useDraft('driver-payment', form);
-  const selectedStart = form.watch('cycleStartDate');
+  const selectedStart = useWatch({ control: form.control, name: 'cycleStartDate' });
   const pendingCycles = useMemo(() => cycles.data?.data ?? [], [cycles.data]);
   const cycle = pendingCycles.find((c) => c.startDate === selectedStart);
 

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Trash2 } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { z } from 'zod';
 import { DateField } from '@/components/pickers';
@@ -46,7 +46,7 @@ export default function ExpenseFormScreen() {
     defaultValues: { expenseDate: todayString(), category: 'diesel', amount: '', description: '', relatedWorkId: '' },
   });
   const draft = useDraft(isEdit ? null : 'new-expense', form);
-  const expenseDate = form.watch('expenseDate');
+  const expenseDate = useWatch({ control: form.control, name: 'expenseDate' });
   // Optional link to a job done on the same day.
   const sameDayWorks = useQuery(`works-on:${expenseDate}`, () => api.works({ from: expenseDate, to: expenseDate, limit: 20 }), { enabled: Boolean(expenseDate) && !readOnly });
 

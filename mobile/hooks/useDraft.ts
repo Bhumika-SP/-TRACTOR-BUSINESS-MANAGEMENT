@@ -18,7 +18,9 @@ export function useDraft<V extends FieldValues>(key: string | null, form: UseFor
   const [restored, setRestored] = useState(false);
   const [loaded, setLoaded] = useState(key === null);
   const requestIdRef = useRef(requestId);
-  requestIdRef.current = requestId;
+  useEffect(() => {
+    requestIdRef.current = requestId;
+  }, [requestId]);
 
   useEffect(() => {
     if (!key) return;

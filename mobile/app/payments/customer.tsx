@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Search } from 'lucide-react-native';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
 import { DateField } from '@/components/pickers';
@@ -44,7 +44,7 @@ export default function CustomerPaymentScreen() {
     defaultValues: { workId: params.workId ?? '', amount: '', paymentDate: todayString(), paymentMethod: 'cash', note: '' },
   });
   const draft = useDraft(params.workId ? `customer-payment:${params.workId}` : 'customer-payment', form);
-  const workId = form.watch('workId');
+  const workId = useWatch({ control: form.control, name: 'workId' });
 
   const work = useQuery(`work:${workId}`, () => api.work(workId), { enabled: Boolean(workId) });
   const dueWorks = useQuery(`due-works:${q}`, () => api.works({ status: 'due', search: q || undefined, limit: 30 }), { enabled: !workId });

@@ -24,14 +24,24 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, opts: { enab
   const [refreshing, setRefreshing] = useState(false);
   const [fromCache, setFromCache] = useState(false);
   const fetcherRef = useRef(fetcher);
-  fetcherRef.current = fetcher;
   const latestKey = useRef(key);
-  latestKey.current = key;
+  // Keep refs pointing at the latest values (updated after render, before the load effect below runs).
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+    latestKey.current = key;
+  });
+
+  // When the key (filters) changes, clear the old result straight away, during render.
+  const [shownKey, setShownKey] = useState(key);
+  if (shownKey !== key) {
+    setShownKey(key);
+    setLoading(true);
+    setData(null);
+  }
 
   const load = useCallback(
-    async (mode: 'initial' | 'refresh' | 'silent') => {
+    async (_mode: 'initial' | 'refresh' | 'silent') => {
       if (!enabled) return;
-      if (mode === 'refresh') setRefreshing(true);
       const requestKey = key;
       try {
         const result = await fetcherRef.current();
@@ -59,8 +69,6 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, opts: { enab
   );
 
   useEffect(() => {
-    setLoading(true);
-    setData(null);
     void load('initial');
   }, [load]);
 
@@ -75,6 +83,9 @@ export function useQuery<T>(key: string, fetcher: () => Promise<T>, opts: { enab
     }, [load]),
   );
 
-  const refresh = useCallback(() => load('refresh'), [load]);
+  const refresh = useCallback(() => {
+    setRefreshing(true);
+    return load('refresh');
+  }, [load]);
   return { data, error, loading: loading && data === null, refreshing, fromCache, refresh };
 }

@@ -243,7 +243,7 @@ The app is deployed as two Vercel projects, both built from this repository:
 
 ## 8. Building the Android APK (Expo EAS)
 
-1. Put your Render URL in `mobile/eas.json` (both `preview` and `production` → `EXPO_PUBLIC_API_URL`), ending in `/api`.
+1. `mobile/eas.json` already points both `preview` and `production` builds at the live API (`https://tractor-tracker-api.vercel.app/api`). Change `EXPO_PUBLIC_API_URL` there only if the API moves.
 2. Build:
 
 ```bash
